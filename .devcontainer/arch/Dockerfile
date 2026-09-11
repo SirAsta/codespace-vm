@@ -22,7 +22,7 @@ RUN pacman -Syu --noconfirm \
       firefox \
       xorg-xsetroot xorg-xrdb xorg-xset \
       dbus \
-      ttf-dejavu ttf-liberation noto-fonts ttf-hack \
+      ttf-dejavu ttf-liberation noto-fonts ttf-hack font-misc-misc font-alias \
       git sudo shadow bash \
       python python-pip procps-ng \
       curl wget vim nano htop tar gzip \

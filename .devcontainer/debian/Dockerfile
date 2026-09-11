@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       tigervnc-standalone-server tigervnc-common \
       firefox-esr \
       dbus-x11 x11-utils x11-xserver-utils \
-      fonts-dejavu fonts-liberation fonts-noto fonts-hack \
+      fonts-dejavu fonts-liberation fonts-noto fonts-hack xfonts-base \
       git sudo bash \
       python3 python3-pip procps \
       curl wget vim nano htop tar gzip ca-certificates \

@@ -26,6 +26,7 @@ RUN dnf install -y \
       dejavu-sans-fonts dejavu-sans-mono-fonts \
       liberation-sans-fonts liberation-mono-fonts \
       google-noto-sans-fonts google-noto-sans-mono-fonts \
+      xorg-x11-fonts-misc \
       git sudo shadow-utils bash \
       python3 python3-pip procps-ng \
       curl wget nano htop tar gzip \

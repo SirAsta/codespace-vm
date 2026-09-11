@@ -93,7 +93,7 @@ case "$DISTRO" in
       konsole dolphin kate ark gwenview breeze breeze-icon-theme \
       tigervnc-standalone-server tigervnc-common \
       firefox-esr dbus-x11 x11-utils x11-xserver-utils \
-      fonts-dejavu fonts-liberation fonts-noto fonts-hack \
+      fonts-dejavu fonts-liberation fonts-noto fonts-hack xfonts-base \
       git sudo python3 python3-pip procps curl wget vim nano htop tar gzip ca-certificates
     apt-get clean
     rm -rf /var/lib/apt/lists/*
@@ -103,7 +103,7 @@ case "$DISTRO" in
     pacman -Syu --noconfirm \
       plasma-desktop kwin konsole dolphin kate ark gwenview breeze breeze-icons \
       tigervnc firefox xorg-xsetroot xorg-xrdb xorg-xset dbus \
-      ttf-dejavu ttf-liberation noto-fonts ttf-hack \
+      ttf-dejavu ttf-liberation noto-fonts ttf-hack font-misc-misc font-alias \
       git sudo python python-pip procps-ng curl wget vim nano htop tar gzip
     pacman -Scc --noconfirm
     rm -rf /var/cache/pacman/pkg/*
@@ -117,6 +117,7 @@ case "$DISTRO" in
       dejavu-sans-fonts dejavu-sans-mono-fonts \
       liberation-sans-fonts liberation-mono-fonts \
       google-noto-sans-fonts google-noto-sans-mono-fonts \
+      xorg-x11-fonts-misc \
       git sudo python3 python3-pip procps-ng curl wget nano htop tar gzip bash
     dnf install -y breeze-icon-theme vim-enhanced || true
     dnf clean all

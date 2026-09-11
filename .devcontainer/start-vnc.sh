@@ -111,12 +111,18 @@ sleep 1
 # on this host can attach; external access arrives through Codespaces
 # port forwarding.
 log "starting TigerVNC $DISPLAY_NUM at $RESOLUTION ..."
-vncserver "$DISPLAY_NUM" \
+if ! vncserver "$DISPLAY_NUM" \
   -geometry "$RESOLUTION" \
   -depth 24 \
   -localhost no \
   -rfbport "$VNC_PORT" \
-  >>"$LOG_VNC" 2>&1
+  >>"$LOG_VNC" 2>&1; then
+  log "ERROR: the VNC server failed to start. Last lines of $LOG_VNC:"
+  tail -n 25 "$LOG_VNC" || true
+  log "X session logs in $VNC_DIR:"
+  tail -n 25 "$VNC_DIR"/*.log 2>/dev/null || true
+  exit 1
+fi
 
 sleep 2
 
