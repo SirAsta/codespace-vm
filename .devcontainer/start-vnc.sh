@@ -82,7 +82,8 @@ EOF
 fi
 chmod +x "$VNC_DIR/xstartup"
 
-# Keep KWin compositing disabled so Plasma stays responsive over VNC.
+# Keep KWin compositing disabled so Plasma stays responsive over VNC,
+# and Baloo file indexing off so first boot stays light on memory.
 # Applied here as a safeguard even if tune-kde.sh has never run.
 if command -v python3 >/dev/null 2>&1; then
   mkdir -p "$HOME/.config"
@@ -97,6 +98,14 @@ if not c.has_section('Compositing'): c.add_section('Compositing')
 c.set('Compositing', 'Enabled', 'false')
 c.set('Compositing', 'AnimationSpeed', '3')
 with open(p, 'w') as f: c.write(f)
+b = os.path.expanduser('~/.config/baloofilerc')
+c = configparser.ConfigParser(); c.optionxform = str
+if os.path.exists(b):
+    try: c.read(b)
+    except Exception: pass
+if not c.has_section('Basic Settings'): c.add_section('Basic Settings')
+c.set('Basic Settings', 'Indexing-Enabled', 'false')
+with open(b, 'w') as f: c.write(f)
 " 2>/dev/null || true
 fi
 
