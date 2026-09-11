@@ -2,46 +2,38 @@
 #
 # start-vnc.sh
 #
-# Starts the browser-accessible desktop: a TigerVNC server for the desktop
-# session and a noVNC (websockify) bridge on port 6080.
+# Starts the browser-accessible KDE Plasma desktop: a TigerVNC server for
+# the desktop session and a noVNC (websockify) bridge on port 6080.
 #
 # Idempotent: existing sessions are stopped first, so this script can run
 # any number of times, including automatically on every Codespace start.
 #
 # Environment:
 #   VNC_PASSWORD   Password for VNC and noVNC access (default: vscode)
-#   RESOLUTION     Desktop resolution, e.g. 1280x800 (default: 1280x800)
+#   RESOLUTION     Desktop resolution, e.g. 1600x900 (default: 1600x900)
 #   VNC_DISPLAY    VNC display number (default: :1)
-#   DESKTOP        Desktop session to start: xfce or kde (default: xfce)
-#   DESKTOP_FORCE  One-off override of the persisted desktop choice
 set -euo pipefail
 
 VNC_PASSWORD="${VNC_PASSWORD:-vscode}"
-RESOLUTION="${RESOLUTION:-1280x800}"
+RESOLUTION="${RESOLUTION:-1600x900}"
 DISPLAY_NUM="${VNC_DISPLAY:-:1}"
-DESKTOP="${DESKTOP:-xfce}"
 VNC_PORT=5901
 NOVNC_PORT=6080
 NOVNC_PATH="${NOVNC_PATH:-/usr/share/novnc}"
 VNC_DIR="$HOME/.vnc"
-PERSISTED_DESKTOP_FILE="$HOME/.config/codespace-vm-desktop"
 LOG_VNC="/tmp/vncserver.log"
 LOG_NOVNC="/tmp/novnc.log"
 
 log() { echo "[start-vnc] $*"; }
 
-# Resolve which desktop to start.
-# Precedence: DESKTOP_FORCE, then the persisted choice written by
-# switch-desktop.sh, then the DESKTOP environment variable.
-if [ -n "${DESKTOP_FORCE:-}" ]; then
-  DESKTOP="$DESKTOP_FORCE"
-elif [ -f "$PERSISTED_DESKTOP_FILE" ]; then
-  DESKTOP="$(tr -d ' \t\n\r' < "$PERSISTED_DESKTOP_FILE")"
-fi
-
-# Verify the VNC stack is installed before touching any running sessions.
+# Verify the VNC stack and Plasma session are installed before touching
+# any running sessions.
 if ! command -v vncserver >/dev/null 2>&1; then
   log "ERROR: vncserver not installed. Run: sudo bash scripts/install-desktop.sh"
+  exit 1
+fi
+if ! command -v startplasma-x11 >/dev/null 2>&1; then
+  log "ERROR: KDE Plasma not installed. Run: sudo bash scripts/install-desktop.sh"
   exit 1
 fi
 if [ ! -f "$NOVNC_PATH/vnc.html" ]; then
@@ -64,31 +56,15 @@ printf '%s' "$VNC_PASSWORD" | vncpasswd -f > "$VNC_DIR/passwd"
 chmod 600 "$VNC_DIR/passwd"
 log "VNC password set (${#VNC_PASSWORD} chars)."
 
-# Locate a session script, preferring the copy installed on the system.
-find_repo_file() { # $1: filename under .devcontainer/
-  for c in "/etc/codespace-vm/$1" \
-           "$(pwd)/.devcontainer/$1" \
-           "$HOME/codespace-vm/.devcontainer/$1"; do
-    if [ -f "$c" ]; then echo "$c"; return 0; fi
-  done
-  return 1
-}
-
-# Select the session startup script for the requested desktop.
-case "$DESKTOP" in
-  kde|plasma)
-    DESKTOP="kde"
-    if ! command -v startplasma-x11 >/dev/null 2>&1; then
-      log "ERROR: DESKTOP=kde but Plasma isn't installed."
-      log "  Install it live:  sudo bash scripts/switch-desktop.sh kde"
-      log "  Or rebuild with:  .devcontainer/kde/devcontainer.json"
-      exit 1
-    fi
-    if SRC="$(find_repo_file xstartup-kde)"; then
-      cp -f "$SRC" "$VNC_DIR/xstartup"
-    else
-      log "xstartup-kde not found, writing embedded fallback..."
-      cat > "$VNC_DIR/xstartup" <<'EOF'
+# Install the Plasma session script, preferring the copy on the system.
+INSTALLED_XSTARTUP="/etc/codespace-vm/xstartup"
+if [ -f "$INSTALLED_XSTARTUP" ]; then
+  cp -f "$INSTALLED_XSTARTUP" "$VNC_DIR/xstartup"
+elif [ -f "$(pwd)/.devcontainer/xstartup" ]; then
+  cp -f "$(pwd)/.devcontainer/xstartup" "$VNC_DIR/xstartup"
+elif [ ! -f "$VNC_DIR/xstartup" ]; then
+  log "xstartup not found, writing embedded fallback..."
+  cat > "$VNC_DIR/xstartup" <<'EOF'
 #!/bin/sh
 unset SESSION_MANAGER
 unset DBUS_SESSION_BUS_ADDRESS
@@ -103,12 +79,14 @@ xset s off 2>/dev/null || true
 xset -dpms 2>/dev/null || true
 exec /usr/bin/startplasma-x11
 EOF
-    fi
-    # Keep KWin compositing disabled so Plasma stays responsive over VNC.
-    # Applied here as a safeguard even if tune-kde.sh has never run.
-    if command -v python3 >/dev/null 2>&1; then
-      mkdir -p "$HOME/.config"
-      python3 -c "
+fi
+chmod +x "$VNC_DIR/xstartup"
+
+# Keep KWin compositing disabled so Plasma stays responsive over VNC.
+# Applied here as a safeguard even if tune-kde.sh has never run.
+if command -v python3 >/dev/null 2>&1; then
+  mkdir -p "$HOME/.config"
+  python3 -c "
 import configparser, os
 p = os.path.expanduser('~/.config/kwinrc')
 c = configparser.ConfigParser(); c.optionxform = str
@@ -120,30 +98,7 @@ c.set('Compositing', 'Enabled', 'false')
 c.set('Compositing', 'AnimationSpeed', '3')
 with open(p, 'w') as f: c.write(f)
 " 2>/dev/null || true
-    fi
-    ;;
-  *)
-    DESKTOP="xfce"
-    if ! command -v startxfce4 >/dev/null 2>&1; then
-      log "ERROR: XFCE isn't installed. Run: sudo bash scripts/install-desktop.sh"
-      exit 1
-    fi
-    if SRC="$(find_repo_file xstartup)"; then
-      cp -f "$SRC" "$VNC_DIR/xstartup"
-    elif [ ! -f "$VNC_DIR/xstartup" ]; then
-      cat > "$VNC_DIR/xstartup" <<'EOF'
-#!/bin/sh
-unset SESSION_MANAGER
-unset DBUS_SESSION_BUS_ADDRESS
-xsetroot -solid "#2C3E50" 2>/dev/null || true
-vncconfig -iconic 2>/dev/null &
-exec startxfce4
-EOF
-    fi
-    ;;
-esac
-chmod +x "$VNC_DIR/xstartup"
-log "Desktop session: $DESKTOP"
+fi
 
 # Stop any stale sessions left over from a previous run.
 log "cleaning stale VNC sessions..."
@@ -184,7 +139,7 @@ else
 fi
 
 echo ""
-log "✅ Desktop is UP ($DESKTOP) — resolution $RESOLUTION"
+log "✅ Desktop is UP (KDE Plasma) — resolution $RESOLUTION"
 log "   VNC password: $VNC_PASSWORD"
 if [ -n "${CODESPACE_NAME:-}" ] && [ -n "${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-}" ]; then
   echo "   🌐 noVNC:  https://${CODESPACE_NAME}-${NOVNC_PORT}.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}/vnc.html"

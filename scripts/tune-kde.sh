@@ -12,7 +12,7 @@
 #
 # Usage:
 #   bash scripts/tune-kde.sh                            # tune this machine
-#   bash scripts/tune-kde.sh --container vm-ubuntu-kde  # tune a running sidecar
+#   bash scripts/tune-kde.sh --container vm-ubuntu  # tune a running sidecar
 set -euo pipefail
 
 # Tune a running sidecar by copying this script into it and executing it

@@ -2,17 +2,15 @@
 #
 # launch-distro.sh
 #
-# Boots additional Linux distributions as desktop containers using the
-# maintained linuxserver/webtop images. Each container serves its desktop
-# over HTTP, which Codespaces forwards to the browser.
+# Boots additional Linux distributions as KDE Plasma desktop containers
+# using the maintained linuxserver/webtop images. Each container serves
+# its desktop over HTTP, which Codespaces forwards to the browser.
 #
-# Available: Ubuntu, Debian, Arch, Fedora and Alpine, each in XFCE
-# (ports 3001-3005) and KDE Plasma (ports 3006-3010) variants.
+# Available: Ubuntu, Debian, Arch, Fedora and Alpine on ports 3001-3005.
 #
 # Usage:
 #   ./scripts/launch-distro.sh list
 #   ./scripts/launch-distro.sh run ubuntu [port]
-#   ./scripts/launch-distro.sh run ubuntu-kde [port]
 #   ./scripts/launch-distro.sh stop ubuntu
 #   ./scripts/launch-distro.sh logs ubuntu
 #   ./scripts/launch-distro.sh shell ubuntu
@@ -21,16 +19,11 @@ set -euo pipefail
 
 # Maps each name to its container image and default port.
 declare -A DISTROS=(
-  [ubuntu]="lscr.io/linuxserver/webtop:ubuntu-xfce|3001"
-  [debian]="lscr.io/linuxserver/webtop:debian-xfce|3002"
-  [arch]="lscr.io/linuxserver/webtop:arch-xfce|3003"
-  [fedora]="lscr.io/linuxserver/webtop:fedora-xfce|3004"
-  [alpine]="lscr.io/linuxserver/webtop:alpine-xfce|3005"
-  [ubuntu-kde]="lscr.io/linuxserver/webtop:ubuntu-kde|3006"
-  [debian-kde]="lscr.io/linuxserver/webtop:debian-kde|3007"
-  [arch-kde]="lscr.io/linuxserver/webtop:arch-kde|3008"
-  [fedora-kde]="lscr.io/linuxserver/webtop:fedora-kde|3009"
-  [alpine-kde]="lscr.io/linuxserver/webtop:alpine-kde|3010"
+  [ubuntu]="lscr.io/linuxserver/webtop:ubuntu-kde|3001"
+  [debian]="lscr.io/linuxserver/webtop:debian-kde|3002"
+  [arch]="lscr.io/linuxserver/webtop:arch-kde|3003"
+  [fedora]="lscr.io/linuxserver/webtop:fedora-kde|3004"
+  [alpine]="lscr.io/linuxserver/webtop:alpine-kde|3005"
 )
 
 # Sidecar data lives here by default. Point VM_CONFIG_ROOT at /workspaces
@@ -56,17 +49,13 @@ need_docker() {
 }
 
 cmd_list() {
-  _row() {
-    IFS='|' read -r img port <<< "${DISTROS[$1]}"
-    printf '  %-12s → %-45s default port %s\n' "$1" "$img" "$port"
-  }
-  echo "XFCE flavors (light — run anywhere):"
-  for d in ubuntu debian arch fedora alpine; do _row "$d"; done
+  echo "KDE Plasma sidecars:"
+  for d in ubuntu debian arch fedora alpine; do
+    IFS='|' read -r img port <<< "${DISTROS[$d]}"
+    printf '  %-8s → %-45s default port %s\n' "$d" "$img" "$port"
+  done
   echo ""
-  echo "KDE Plasma flavors (tuned, heavier — 4-core recommended):"
-  for d in ubuntu-kde debian-kde arch-kde fedora-kde alpine-kde; do _row "$d"; done
-  echo ""
-  echo "Tune a running KDE container:  bash scripts/tune-kde.sh --container vm-ubuntu-kde"
+  echo "Tune a running sidecar:  bash scripts/tune-kde.sh --container vm-ubuntu"
   echo ""
   echo "CLI-only one-liners (no desktop, instant):"
   echo "  docker run -it --rm ubuntu:24.04 bash"
@@ -110,9 +99,7 @@ cmd_run() {
   echo "✅ $distro desktop is starting!"
   echo "   🌐 Open: $(url_for "$port")"
   echo "   (Codespaces: PORTS tab → globe icon on $port. First load takes ~10-20s.)"
-  if [[ "$distro" == *-kde ]]; then
-    echo "   ✨ Tune it: bash scripts/tune-kde.sh --container $name"
-  fi
+  echo "   ✨ Tune it: bash scripts/tune-kde.sh --container $name"
   echo "   🐚 Shell: ./scripts/launch-distro.sh shell $distro"
   echo "   🛑 Stop:  ./scripts/launch-distro.sh stop $distro"
 }

@@ -1,29 +1,29 @@
 # Codespace VM
 
-Run full Linux desktops in your browser, powered entirely by GitHub Codespaces.
+Run a full KDE Plasma desktop in your browser, powered entirely by GitHub Codespaces.
 
-Codespace VM turns a Codespace into a personal Linux lab: a persistent Ubuntu
-desktop streamed over noVNC, with one-command sidecar containers for Ubuntu,
-Debian, Arch, Fedora and Alpine in both XFCE and KDE Plasma flavors.
+Codespace VM turns a Codespace into a personal Linux lab: a persistent Plasma
+desktop streamed over noVNC, with one-command Plasma sidecar containers for
+Ubuntu, Debian, Arch, Fedora and Alpine.
 
 ## Features
 
-- Persistent Ubuntu desktop (XFCE or KDE Plasma) streamed to the browser via noVNC
-- Ten on-demand distro containers: five distributions times two desktop environments
+- Persistent KDE Plasma desktop streamed to the browser via noVNC
+- Five on-demand Plasma sidecars: Ubuntu, Debian, Arch, Fedora and Alpine
+- Tuned Plasma profile: dark theme, compositor disabled for VNC performance, no file indexing
 - Automatic startup, health checks and printed access URLs
-- Tuned KDE profile: dark theme, compositor disabled for VNC performance, no file indexing
-- Everything configurable through environment variables: password, resolution, desktop
+- Everything configurable through environment variables: password, resolution, display
 
 ## Requirements
 
 - A GitHub account with Codespaces access
-- 2-core machine for the main desktop; 4-core recommended when running sidecars
+- 4-core machine recommended (Plasma is heavier than minimal desktops); 10 GB of RAM requested
 
 ## Quickstart
 
 1. Use this template (or fork it) to create your own repository.
 2. Click Code, then Codespaces, then Create codespace on main.
-3. Wait for the build to finish (2-4 minutes on first run). The desktop starts automatically.
+3. Wait for the build to finish (first run takes several minutes: Plasma is a large install). The desktop starts automatically.
 4. In the PORTS panel, open port 6080 to launch the desktop. Default password: `vscode`.
 
 Verify from the terminal:
@@ -36,63 +36,58 @@ Verify from the terminal:
 
 | Desktop | Port | Address |
 | --- | --- | --- |
-| Main desktop (noVNC) | 6080 | `https://<codespace>-6080.app.github.dev/vnc.html` |
+| Main desktop, KDE Plasma (noVNC) | 6080 | `https://<codespace>-6080.app.github.dev/vnc.html` |
 | Main desktop (native VNC client) | 5901 | Forward the port, then connect to `localhost:5901` |
-| Ubuntu, Debian, Arch, Fedora, Alpine (XFCE) | 3001-3005 | `https://<codespace>-<port>.app.github.dev/` |
-| Ubuntu, Debian, Arch, Fedora, Alpine (KDE) | 3006-3010 | `https://<codespace>-<port>.app.github.dev/` |
-| Kali Linux (VNC) | 3011 | `https://<codespace>-3011.app.github.dev/` |
+| Ubuntu, Debian, Arch, Fedora, Alpine (Plasma sidecars) | 3001-3005 | `https://<codespace>-<port>.app.github.dev/` |
+| Kali Linux (VNC) | 3006 | `https://<codespace>-3006.app.github.dev/` |
 
 Ports are private by default, meaning only your GitHub account can open them.
 Keep them that way.
 
+## Tuning
+
+The desktop ships with a tuned Plasma profile (`scripts/tune-kde.sh`):
+
+| Tweak | Why |
+| --- | --- |
+| KWin compositing and all desktop effects off, instant animations | Remote protocols cannot sustain composited rendering; this is the main VNC speedup |
+| Breeze Dark theme, dark icons, Noto Sans and Hack fonts | Coherent dark UI out of the box |
+| Baloo file indexing off, KRunner search trimmed | Saves memory and background CPU usage |
+| Automatic suspend off | A sleeping cloud machine is just a frozen tab |
+| Two virtual desktops, double-click, Konsole and Firefox defaults | Sensible workspace behavior |
+
+Re-apply it to the main desktop at any time:
+
+```bash
+bash scripts/tune-kde.sh
+```
+
+Or tune a running sidecar:
+
+```bash
+bash scripts/tune-kde.sh --container vm-ubuntu
+make tune-sidecar CONTAINER=vm-arch
+```
+
 ## Running additional distros
 
 ```bash
-./scripts/launch-distro.sh list            # show every available flavor
-./scripts/launch-distro.sh run ubuntu      # XFCE on port 3001
-./scripts/launch-distro.sh run arch-kde    # KDE Plasma on port 3008
-./scripts/launch-distro.sh stop arch-kde
+./scripts/launch-distro.sh list            # show every available sidecar
+./scripts/launch-distro.sh run ubuntu      # Ubuntu Plasma on port 3001
+./scripts/launch-distro.sh run arch        # Arch Plasma on port 3003
+./scripts/launch-distro.sh stop arch
 ./scripts/launch-distro.sh stop-all
 ```
 
-Shortcuts are also available through the Makefile (`make ubuntu`, `make kde-arch`,
+Shortcuts are also available through the Makefile (`make ubuntu`, `make arch`,
 and so on). Run `make help` for the full list.
-
-## KDE Plasma
-
-Three options, depending on how you want to run Plasma.
-
-Switch the main desktop, with no rebuild required:
-
-```bash
-sudo bash scripts/switch-desktop.sh kde     # install, tune and switch to Plasma
-sudo bash scripts/switch-desktop.sh xfce    # switch back to XFCE
-```
-
-The selection persists across Codespace restarts.
-
-Start from the KDE image instead: when creating the Codespace, choose the
-"Linux VM (KDE Plasma + noVNC)" configuration.
-
-Run Plasma alongside XFCE: boot any `-kde` sidecar as shown above, then
-optionally tune it:
-
-```bash
-bash scripts/tune-kde.sh --container vm-ubuntu-kde
-```
-
-The tuning profile enables the Breeze Dark theme, disables the KWin compositor
-and desktop effects for VNC performance, disables Baloo file indexing and
-automatic suspend, and applies a set of sensible workspace defaults. See
-`scripts/tune-kde.sh` for the complete list.
 
 ## Configuration
 
 | Variable | Default | Description |
 | --- | --- | --- |
 | VNC_PASSWORD | vscode | Password for VNC and noVNC access |
-| RESOLUTION | 1280x800 | Desktop resolution (for example 1600x900, 1920x1080) |
-| DESKTOP | xfce | Main desktop: `xfce` or `kde` |
+| RESOLUTION | 1600x900 | Desktop resolution (for example 1280x800, 1920x1080) |
 | VNC_DISPLAY | :1 | VNC display number |
 
 Apply changes by restarting the desktop:
@@ -105,10 +100,10 @@ For persistent values, use Codespaces Secrets or export the variables in `~/.bas
 
 ## Resources
 
-This project requests 10 GB of RAM (see `hostRequirements` in `devcontainer.json`).
-GitHub provisions the smallest machine type that satisfies the request. The main
-desktop alone runs comfortably within this; choose a 4-core machine when running
-KDE or multiple sidecar containers.
+This project requests 4 CPUs and 10 GB of RAM (see `hostRequirements` in
+`devcontainer.json`). GitHub provisions the smallest machine type that satisfies
+the request. The main desktop alone runs comfortably within this; stop sidecars
+you are not using to keep things responsive.
 
 Sidecar containers default to a 2 GB shared-memory allocation, adjustable
 through `VM_SHM_SIZE`.
@@ -118,16 +113,13 @@ through `VM_SHM_SIZE`.
 ```text
 .devcontainer/
     devcontainer.json        Codespace definition: image, ports, autostart
-    Dockerfile               Main image: Ubuntu, XFCE, TigerVNC, noVNC, Firefox
-    Dockerfile.kde           Variant image with KDE Plasma
-    kde/devcontainer.json    Alternate configuration booting straight into Plasma
+    Dockerfile               Main image: Ubuntu, KDE Plasma, TigerVNC, noVNC, Firefox
     start-vnc.sh             Starts the VNC server and the noVNC bridge
-    xstartup, xstartup-kde   Session startup scripts for XFCE and Plasma
+    xstartup                 Plasma session startup script
 scripts/
     install-desktop.sh       Installs the desktop on a live Codespace (no rebuild)
-    launch-distro.sh         Boots and manages sidecar distro containers
+    launch-distro.sh         Boots and manages Plasma sidecar containers
     tune-kde.sh              Applies the tuned Plasma profile
-    switch-desktop.sh        Switches the main desktop between XFCE and Plasma
     status.sh                Health check; prints every desktop URL
 docker-compose.yml           Boots multiple sidecars at once
 Makefile                     Shortcuts for common tasks
@@ -154,8 +146,8 @@ docker run -it --rm kalilinux/kali-rolling bash
 Kali with a desktop (large download):
 
 ```bash
-docker run -d --name vm-kali -p 3011:6080 dorowu/kali-linux-vnc:latest
-# then open port 3011
+docker run -d --name vm-kali -p 3006:6080 dorowu/kali-linux-vnc:latest
+# then open port 3006
 ```
 
 Copy files between the Codespace and a sidecar:
@@ -169,12 +161,12 @@ docker cp vm-ubuntu:/config/output.txt ./
 
 | Symptom | Solution |
 | --- | --- |
-| Port 6080 refuses connections | The desktop is still starting, or it stopped. Run `bash .devcontainer/start-vnc.sh` and check `/tmp/vncserver.log` and `/tmp/novnc.log`. |
+| Port 6080 refuses connections | The desktop is still starting, or it stopped. Run `bash .devcontainer/start-vnc.sh` and check `/tmp/vncserver.log` and `/tmp/novnc.log`. Plasma takes longer than light desktops on first start. |
 | Grey or black screen in the browser | The session script failed. Inspect `~/.vnc/*.log`, then run `vncserver -kill :1` and restart. |
 | Authentication failed | The default password is `vscode`. Reset it with `VNC_PASSWORD=vscode bash .devcontainer/start-vnc.sh`. |
 | `docker: permission denied` | Run `newgrp docker`, or rebuild the Codespace so the docker-in-docker feature applies. |
 | Sidecar exits immediately | Usually out of memory. Stop other containers or use a larger machine, then check `docker logs <name>`. |
-| Sluggish desktop | Lower the resolution, close tabs inside the desktop browser, or move to a 4-core machine. |
+| Sluggish desktop | Lower the resolution, close tabs inside the desktop browser, stop unused sidecars, or move to a larger machine. |
 
 Full reset of the main desktop:
 

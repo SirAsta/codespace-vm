@@ -2,8 +2,8 @@
 #
 # status.sh
 #
-# Reports the health of the main desktop, the noVNC bridge and any running
-# sidecar containers, and prints the URL of every available desktop.
+# Reports the health of the Plasma desktop, the noVNC bridge and any
+# running sidecar containers, and prints the URL of every available desktop.
 set -uo pipefail
 
 green() { printf '\033[0;32m%s\033[0m\n' "$*"; }
@@ -37,8 +37,8 @@ else
 fi
 
 echo ""
-echo "  Main desktop:  $(codespace_url 6080 /vnc.html)"
-echo "  VNC native:    port 5901 (user: anyone, pass: \$VNC_PASSWORD, default 'vscode')"
+echo "  Main desktop (KDE Plasma):  $(codespace_url 6080 /vnc.html)"
+echo "  VNC native:                 port 5901 (user: anyone, pass: \$VNC_PASSWORD, default 'vscode')"
 echo ""
 
 # Sidecar distro containers.
@@ -50,8 +50,7 @@ if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
     dim "  (no vm-* containers running — try: ./scripts/launch-distro.sh run ubuntu)"
   fi
   echo ""
-  echo "  webtop xfce:   3001 ubuntu · 3002 debian · 3003 arch · 3004 fedora · 3005 alpine"
-  echo "  webtop kde:    3006 ubuntu · 3007 debian · 3008 arch · 3009 fedora · 3010 alpine"
+  echo "  sidecars (kde):  3001 ubuntu · 3002 debian · 3003 arch · 3004 fedora · 3005 alpine"
 else
   dim "── docker: not available (docker-in-docker still starting? wait 30s and retry) ──"
 fi

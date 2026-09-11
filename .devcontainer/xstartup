@@ -1,24 +1,29 @@
 #!/bin/sh
 #
-# VNC session script for XFCE.
+# VNC session script for KDE Plasma (X11).
 #
-# Executed by TigerVNC when display :1 starts. Launches a lightweight
-# XFCE session suitable for remote use over noVNC.
+# Executed by TigerVNC when the display starts. Launches a Plasma session
+# over X11; compositing is disabled separately by start-vnc.sh and
+# tune-kde.sh so the session stays responsive over VNC.
 unset SESSION_MANAGER
 unset DBUS_SESSION_BUS_ADDRESS
 
 [ -r "$HOME/.Xresources" ] && xrdb "$HOME/.Xresources"
 
-xsetroot -solid "#2C3E50" 2>/dev/null || true
+xsetroot -solid "#232629" 2>/dev/null || true
 vncconfig -iconic 2>/dev/null &
 
-# A session bus keeps file manager dialogs and settings panels responsive.
 if command -v dbus-launch >/dev/null 2>&1; then
   eval "$(dbus-launch --sh-syntax --exit-with-session)"
 fi
+
+export XDG_SESSION_TYPE=x11
+export DESKTOP_SESSION=plasma
+export XDG_CURRENT_DESKTOP=KDE
+export KDE_SESSION_VERSION=5
 
 # Screen blanking and power saving serve no purpose in a browser tab.
 xset s off 2>/dev/null || true
 xset -dpms 2>/dev/null || true
 
-exec startxfce4
+exec /usr/bin/startplasma-x11

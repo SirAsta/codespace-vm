@@ -1,5 +1,5 @@
 {
-  "name": "Linux VM (Ubuntu + noVNC)",
+  "name": "Linux VM (KDE Plasma + noVNC)",
   "build": {
     "dockerfile": "Dockerfile",
     "context": "."
@@ -24,16 +24,13 @@
   "remoteUser": "vscode",
 
   // Default settings. Codespaces Secrets and shell exports take precedence.
-  // DESKTOP accepts xfce or kde. A choice made with switch-desktop.sh is
-  // persisted separately and takes precedence over this value.
   "remoteEnv": {
     "VNC_PASSWORD": "vscode",
-    "RESOLUTION": "1280x800",
-    "VNC_DISPLAY": ":1",
-    "DESKTOP": "xfce"
+    "RESOLUTION": "1600x900",
+    "VNC_DISPLAY": ":1"
   },
 
-  "forwardPorts": [6080, 5901, 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009, 3010, 3011],
+  "forwardPorts": [6080, 5901, 3001, 3002, 3003, 3004, 3005, 3006],
   "portsAttributes": {
     "6080": {
       "label": "Desktop (noVNC)",
@@ -43,17 +40,12 @@
       "label": "VNC (native client)",
       "onAutoForward": "silent"
     },
-    "3001": { "label": "webtop ubuntu xfce", "onAutoForward": "silent" },
-    "3002": { "label": "webtop debian xfce", "onAutoForward": "silent" },
-    "3003": { "label": "webtop arch xfce", "onAutoForward": "silent" },
-    "3004": { "label": "webtop fedora xfce", "onAutoForward": "silent" },
-    "3005": { "label": "webtop alpine xfce", "onAutoForward": "silent" },
-    "3006": { "label": "webtop ubuntu kde", "onAutoForward": "silent" },
-    "3007": { "label": "webtop debian kde", "onAutoForward": "silent" },
-    "3008": { "label": "webtop arch kde", "onAutoForward": "silent" },
-    "3009": { "label": "webtop fedora kde", "onAutoForward": "silent" },
-    "3010": { "label": "webtop alpine kde", "onAutoForward": "silent" },
-    "3011": { "label": "extra (kali/custom)", "onAutoForward": "silent" }
+    "3001": { "label": "sidecar ubuntu", "onAutoForward": "silent" },
+    "3002": { "label": "sidecar debian", "onAutoForward": "silent" },
+    "3003": { "label": "sidecar arch", "onAutoForward": "silent" },
+    "3004": { "label": "sidecar fedora", "onAutoForward": "silent" },
+    "3005": { "label": "sidecar alpine", "onAutoForward": "silent" },
+    "3006": { "label": "extra (kali/custom)", "onAutoForward": "silent" }
   },
 
   // Start the desktop after creation and again on every Codespace start.
@@ -73,8 +65,8 @@
   },
 
   "hostRequirements": {
-    "cpus": 2,
+    "cpus": 4,
     "memory": "10gb",
-    "storage": "32gb"
+    "storage": "64gb"
   }
 }

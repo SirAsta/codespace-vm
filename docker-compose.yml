@@ -1,8 +1,7 @@
-# Boots one or more sidecar distro desktops.
+# Boots one or more KDE Plasma sidecar distro desktops.
 #
 # Examples:
 #   docker compose up -d ubuntu arch
-#   docker compose up -d ubuntu-kde
 #   docker compose ps
 #   docker compose down
 #
@@ -10,8 +9,8 @@
 # containers one at a time and prints their URLs. This file is convenient
 # for starting a fixed set at once.
 #
-# XFCE images serve KasmVNC and KDE images serve a Wayland stream; both
-# are exposed as plain HTTP on internal port 3000.
+# The KDE images serve a Wayland stream exposed as plain HTTP on
+# internal port 3000.
 
 x-webtop-defaults: &webtop
   privileged: true
@@ -25,70 +24,35 @@ x-webtop-defaults: &webtop
 services:
   ubuntu:
     <<: *webtop
-    image: lscr.io/linuxserver/webtop:ubuntu-xfce
+    image: lscr.io/linuxserver/webtop:ubuntu-kde
     container_name: vm-ubuntu
     ports: ["3001:3000"]
     volumes: ["/tmp/vm-ubuntu-config:/config"]
 
   debian:
     <<: *webtop
-    image: lscr.io/linuxserver/webtop:debian-xfce
+    image: lscr.io/linuxserver/webtop:debian-kde
     container_name: vm-debian
     ports: ["3002:3000"]
     volumes: ["/tmp/vm-debian-config:/config"]
 
   arch:
     <<: *webtop
-    image: lscr.io/linuxserver/webtop:arch-xfce
+    image: lscr.io/linuxserver/webtop:arch-kde
     container_name: vm-arch
     ports: ["3003:3000"]
     volumes: ["/tmp/vm-arch-config:/config"]
 
   fedora:
     <<: *webtop
-    image: lscr.io/linuxserver/webtop:fedora-xfce
+    image: lscr.io/linuxserver/webtop:fedora-kde
     container_name: vm-fedora
     ports: ["3004:3000"]
     volumes: ["/tmp/vm-fedora-config:/config"]
 
   alpine:
     <<: *webtop
-    image: lscr.io/linuxserver/webtop:alpine-xfce
+    image: lscr.io/linuxserver/webtop:alpine-kde
     container_name: vm-alpine
     ports: ["3005:3000"]
     volumes: ["/tmp/vm-alpine-config:/config"]
-
-  ubuntu-kde:
-    <<: *webtop
-    image: lscr.io/linuxserver/webtop:ubuntu-kde
-    container_name: vm-ubuntu-kde
-    ports: ["3006:3000"]
-    volumes: ["/tmp/vm-ubuntu-kde-config:/config"]
-
-  debian-kde:
-    <<: *webtop
-    image: lscr.io/linuxserver/webtop:debian-kde
-    container_name: vm-debian-kde
-    ports: ["3007:3000"]
-    volumes: ["/tmp/vm-debian-kde-config:/config"]
-
-  arch-kde:
-    <<: *webtop
-    image: lscr.io/linuxserver/webtop:arch-kde
-    container_name: vm-arch-kde
-    ports: ["3008:3000"]
-    volumes: ["/tmp/vm-arch-kde-config:/config"]
-
-  fedora-kde:
-    <<: *webtop
-    image: lscr.io/linuxserver/webtop:fedora-kde
-    container_name: vm-fedora-kde
-    ports: ["3009:3000"]
-    volumes: ["/tmp/vm-fedora-kde-config:/config"]
-
-  alpine-kde:
-    <<: *webtop
-    image: lscr.io/linuxserver/webtop:alpine-kde
-    container_name: vm-alpine-kde
-    ports: ["3010:3000"]
-    volumes: ["/tmp/vm-alpine-kde-config:/config"]

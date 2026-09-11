@@ -2,7 +2,7 @@
 #
 # install-desktop.sh
 #
-# Installs the XFCE desktop and VNC stack on a running Codespace.
+# Installs the KDE Plasma desktop and VNC stack on a running Codespace.
 # Use this when working with an existing Codespace instead of rebuilding
 # from this repository's dev container definition.
 #
@@ -20,15 +20,17 @@ TARGET_USER="${SUDO_USER:-vscode}"
 TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
 TARGET_HOME="${TARGET_HOME:-/home/vscode}"
 
-echo "[install] Installing desktop packages (this takes 2-5 minutes)..."
+echo "[install] Installing desktop packages (this takes several minutes)..."
 apt-get update
 apt-get install -y --no-install-recommends \
-  xfce4 xfce4-goodies xfce4-terminal thunar-archive-plugin \
+  kde-plasma-desktop plasma-workspace kwin-x11 \
+  konsole dolphin kate ark gwenview \
+  breeze breeze-icon-theme \
   dbus-x11 x11-utils x11-xserver-utils \
-  xfonts-base fonts-dejavu fonts-liberation fonts-noto \
+  xfonts-base fonts-dejavu fonts-liberation fonts-noto fonts-hack \
   tigervnc-standalone-server tigervnc-common \
   novnc websockify \
-  supervisor firefox \
+  supervisor firefox python3 \
   curl wget git vim nano htop net-tools ca-certificates tzdata locales unzip zip
 apt-get clean
 rm -rf /var/lib/apt/lists/*
@@ -40,6 +42,9 @@ if [ -f "$REPO_ROOT/.devcontainer/xstartup" ]; then
   cp -f "$REPO_ROOT/.devcontainer/xstartup" /etc/codespace-vm/xstartup
 fi
 chmod +x /etc/codespace-vm/xstartup
+
+echo "[install] Applying tuned Plasma profile for $TARGET_USER..."
+sudo -u "$TARGET_USER" -H bash "$REPO_ROOT/scripts/tune-kde.sh"
 
 echo "[install] Starting desktop as $TARGET_USER..."
 sudo -u "$TARGET_USER" -H bash "$REPO_ROOT/.devcontainer/start-vnc.sh"
