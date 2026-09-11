@@ -16,7 +16,7 @@ Fedora or Debian — and it boots straight into Plasma. No commands to run.
 ## Requirements
 
 - A GitHub account with Codespaces access
-- 4-core machine recommended (Plasma is heavier than minimal desktops); 10 GB of RAM requested
+- 4-core machine recommended for Plasma (select it under Machine type when creating the Codespace)
 
 ## Quickstart
 
@@ -120,10 +120,12 @@ For persistent values, use Codespaces Secrets or export the variables in `~/.bas
 
 ## Resources
 
-Every configuration requests 4 CPUs and 10 GB of RAM (see `hostRequirements`).
-GitHub provisions the smallest machine type that satisfies the request. The main
-desktop alone runs comfortably within this; on the Ubuntu configuration, stop
-sidecars you are not using to keep things responsive.
+Every configuration sets its minimum machine size to the smallest standard
+Codespace (2 CPUs, 8 GB RAM, 32 GB storage) so creation is never blocked.
+When you create the Codespace ("New with options"), choose a **4-core**
+machine for the best Plasma experience — it comes with 16 GB of RAM. The
+main desktop alone runs comfortably within this; on the Ubuntu
+configuration, stop sidecars you are not using to keep things responsive.
 
 Sidecar containers default to a 2 GB shared-memory allocation, adjustable
 through `VM_SHM_SIZE`.
@@ -185,6 +187,7 @@ docker cp vm-ubuntu:/config/output.txt ./
 | Symptom | Solution |
 | --- | --- |
 | No configuration choice shown | Create the Codespace via Code, then Codespaces, then ... then "New with options". The dropdown lists every configuration in `.devcontainer/`. |
+| "No machine types are available" | The minimum machine spec excluded every offered type. This repo keeps minimums at the floor (2 CPU / 8 GB / 32 GB) — pull the latest `main` and retry. |
 | Port 6080 refuses connections | The desktop is still starting, or it stopped. Run `bash .devcontainer/start-vnc.sh` and check `/tmp/vncserver.log` and `/tmp/novnc.log`. Plasma takes longer than light desktops on first start. |
 | Grey or black screen in the browser | The session script failed. Inspect `~/.vnc/*.log`, then run `vncserver -kill :1` and restart. |
 | Authentication failed | The default password is `vscode`. Reset it with `VNC_PASSWORD=vscode bash .devcontainer/start-vnc.sh`. |
