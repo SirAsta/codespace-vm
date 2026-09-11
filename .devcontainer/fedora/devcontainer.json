@@ -1,0 +1,45 @@
+{
+  // Fedora configuration: latest Fedora booting straight into KDE Plasma.
+  // Select "Linux VM (Fedora Plasma + noVNC)" from the "Dev container configuration"
+  // dropdown on the codespace creation page (Code -> Codespaces -> ... -> New with options).
+  // Shares the VNC scripts in .devcontainer/ through build context "..".
+  // Note: Docker is not installed here, so sidecar containers are unavailable.
+  // Use the default Ubuntu configuration when you need sidecars.
+  "name": "Linux VM (Fedora Plasma + noVNC)",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+
+  "remoteUser": "vscode",
+
+  // Default settings. Codespaces Secrets and shell exports take precedence.
+  "remoteEnv": {
+    "VNC_PASSWORD": "vscode",
+    "RESOLUTION": "1600x900",
+    "VNC_DISPLAY": ":1"
+  },
+
+  "forwardPorts": [6080, 5901],
+  "portsAttributes": {
+    "6080": {
+      "label": "Desktop (noVNC)",
+      "onAutoForward": "openPreview"
+    },
+    "5901": {
+      "label": "VNC (native client)",
+      "onAutoForward": "silent"
+    }
+  },
+
+  // Start the desktop after creation and again on every Codespace start.
+  "postCreateCommand": "bash .devcontainer/start-vnc.sh",
+  "postStartCommand": "bash .devcontainer/start-vnc.sh",
+  "postAttachCommand": "bash scripts/status.sh || true",
+
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "10gb",
+    "storage": "64gb"
+  }
+}

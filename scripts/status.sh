@@ -21,6 +21,11 @@ codespace_url() { # $1: port, $2: path
 }
 
 echo "════════ Codespace VM status ════════"
+if [ -r /etc/os-release ]; then
+  # shellcheck disable=SC1091
+  . /etc/os-release
+  echo "  OS: ${PRETTY_NAME:-unknown}"
+fi
 echo ""
 
 # Main desktop: VNC server and noVNC bridge.

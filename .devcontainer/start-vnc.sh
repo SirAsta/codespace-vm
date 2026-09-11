@@ -74,7 +74,7 @@ vncconfig -iconic 2>/dev/null &
 if command -v dbus-launch >/dev/null 2>&1; then
   eval "$(dbus-launch --sh-syntax --exit-with-session)"
 fi
-export XDG_SESSION_TYPE=x11 DESKTOP_SESSION=plasma XDG_CURRENT_DESKTOP=KDE KDE_SESSION_VERSION=5
+export XDG_SESSION_TYPE=x11 DESKTOP_SESSION=plasma XDG_CURRENT_DESKTOP=KDE
 xset s off 2>/dev/null || true
 xset -dpms 2>/dev/null || true
 exec /usr/bin/startplasma-x11

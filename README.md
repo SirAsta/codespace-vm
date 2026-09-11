@@ -2,16 +2,15 @@
 
 Run a full KDE Plasma desktop in your browser, powered entirely by GitHub Codespaces.
 
-Codespace VM turns a Codespace into a personal Linux lab: a persistent Plasma
-desktop streamed over noVNC, with one-command Plasma sidecar containers for
-Ubuntu, Debian, Arch, Fedora and Alpine.
+Pick your Linux distribution when you create the Codespace — Ubuntu, Arch,
+Fedora or Debian — and it boots straight into Plasma. No commands to run.
 
 ## Features
 
-- Persistent KDE Plasma desktop streamed to the browser via noVNC
-- Five on-demand Plasma sidecars: Ubuntu, Debian, Arch, Fedora and Alpine
+- Four distro images, each booting straight into KDE Plasma streamed over noVNC
 - Tuned Plasma profile: dark theme, compositor disabled for VNC performance, no file indexing
 - Automatic startup, health checks and printed access URLs
+- Five on-demand Plasma sidecars on the Ubuntu configuration
 - Everything configurable through environment variables: password, resolution, display
 
 ## Requirements
@@ -22,15 +21,34 @@ Ubuntu, Debian, Arch, Fedora and Alpine.
 ## Quickstart
 
 1. Use this template (or fork it) to create your own repository.
-2. Click Code, then Codespaces, then Create codespace on main.
-3. Wait for the build to finish (first run takes several minutes: Plasma is a large install). The desktop starts automatically.
-4. In the PORTS panel, open port 6080 to launch the desktop. Default password: `vscode`.
+2. In your repository, click Code, then the Codespaces tab, then the ellipsis
+   (...) and "New with options".
+3. Under "Dev container configuration", pick your distribution (default: Ubuntu).
+4. Create the Codespace. The first build takes several minutes; the desktop
+   starts automatically.
+5. In the PORTS panel, open port 6080 to launch the desktop. Default password: `vscode`.
 
 Verify from the terminal:
 
 ```bash
 ./scripts/status.sh
 ```
+
+To make a different distro your default, copy its `devcontainer.json` over
+`.devcontainer/devcontainer.json` (for example from `.devcontainer/arch/`).
+
+## Available configurations
+
+| Configuration | Base image | Docker sidecars? | Best for |
+| --- | --- | --- | --- |
+| Default (Ubuntu) | Ubuntu LTS | Yes — five Plasma sidecars plus Kali | Most users; the full lab |
+| Arch Plasma | Arch Linux (rolling) | No | Latest packages and AUR-style tinkering |
+| Fedora Plasma | Fedora (latest) | No | The Red Hat ecosystem |
+| Debian Plasma | Debian (stable) | No | A minimal, stable base |
+
+Sidecar containers need Docker, which is installed on the Ubuntu configuration
+only. Alpine Linux is available as a sidecar there; it has no dev container
+configuration of its own because its musl libc cannot run the VS Code server.
 
 ## Access
 
@@ -41,12 +59,12 @@ Verify from the terminal:
 | Ubuntu, Debian, Arch, Fedora, Alpine (Plasma sidecars) | 3001-3005 | `https://<codespace>-<port>.app.github.dev/` |
 | Kali Linux (VNC) | 3006 | `https://<codespace>-3006.app.github.dev/` |
 
-Ports are private by default, meaning only your GitHub account can open them.
-Keep them that way.
+Ports 3001-3006 exist on the Ubuntu configuration only. All ports are private
+by default, meaning only your GitHub account can open them. Keep them that way.
 
 ## Tuning
 
-The desktop ships with a tuned Plasma profile (`scripts/tune-kde.sh`):
+Every desktop ships with a tuned Plasma profile (`scripts/tune-kde.sh`):
 
 | Tweak | Why |
 | --- | --- |
@@ -62,7 +80,7 @@ Re-apply it to the main desktop at any time:
 bash scripts/tune-kde.sh
 ```
 
-Or tune a running sidecar:
+Or tune a running sidecar (Ubuntu configuration):
 
 ```bash
 bash scripts/tune-kde.sh --container vm-ubuntu
@@ -70,6 +88,8 @@ make tune-sidecar CONTAINER=vm-arch
 ```
 
 ## Running additional distros
+
+Available on the Ubuntu configuration:
 
 ```bash
 ./scripts/launch-distro.sh list            # show every available sidecar
@@ -100,10 +120,10 @@ For persistent values, use Codespaces Secrets or export the variables in `~/.bas
 
 ## Resources
 
-This project requests 4 CPUs and 10 GB of RAM (see `hostRequirements` in
-`devcontainer.json`). GitHub provisions the smallest machine type that satisfies
-the request. The main desktop alone runs comfortably within this; stop sidecars
-you are not using to keep things responsive.
+Every configuration requests 4 CPUs and 10 GB of RAM (see `hostRequirements`).
+GitHub provisions the smallest machine type that satisfies the request. The main
+desktop alone runs comfortably within this; on the Ubuntu configuration, stop
+sidecars you are not using to keep things responsive.
 
 Sidecar containers default to a 2 GB shared-memory allocation, adjustable
 through `VM_SHM_SIZE`.
@@ -112,8 +132,11 @@ through `VM_SHM_SIZE`.
 
 ```text
 .devcontainer/
-    devcontainer.json        Codespace definition: image, ports, autostart
-    Dockerfile               Main image: Ubuntu, KDE Plasma, TigerVNC, noVNC, Firefox
+    devcontainer.json        Default (Ubuntu): image, ports, autostart, Docker
+    Dockerfile               Ubuntu image: KDE Plasma, TigerVNC, noVNC, Firefox
+    arch/                    Arch config: devcontainer.json + Dockerfile
+    fedora/                  Fedora config: devcontainer.json + Dockerfile
+    debian/                  Debian config: devcontainer.json + Dockerfile
     start-vnc.sh             Starts the VNC server and the noVNC bridge
     xstartup                 Plasma session startup script
 scripts/
@@ -121,7 +144,7 @@ scripts/
     launch-distro.sh         Boots and manages Plasma sidecar containers
     tune-kde.sh              Applies the tuned Plasma profile
     status.sh                Health check; prints every desktop URL
-docker-compose.yml           Boots multiple sidecars at once
+docker-compose.yml           Boots multiple sidecars at once (Ubuntu config)
 Makefile                     Shortcuts for common tasks
 ```
 
@@ -134,7 +157,7 @@ tail -n 50 /tmp/vncserver.log     # VNC server log
 tail -n 50 /tmp/novnc.log         # noVNC bridge log
 ```
 
-Minimal CLI-only containers without a desktop:
+Minimal CLI-only containers without a desktop (Ubuntu configuration):
 
 ```bash
 docker run -it --rm ubuntu:24.04 bash
@@ -161,10 +184,11 @@ docker cp vm-ubuntu:/config/output.txt ./
 
 | Symptom | Solution |
 | --- | --- |
+| No configuration choice shown | Create the Codespace via Code, then Codespaces, then ... then "New with options". The dropdown lists every configuration in `.devcontainer/`. |
 | Port 6080 refuses connections | The desktop is still starting, or it stopped. Run `bash .devcontainer/start-vnc.sh` and check `/tmp/vncserver.log` and `/tmp/novnc.log`. Plasma takes longer than light desktops on first start. |
 | Grey or black screen in the browser | The session script failed. Inspect `~/.vnc/*.log`, then run `vncserver -kill :1` and restart. |
 | Authentication failed | The default password is `vscode`. Reset it with `VNC_PASSWORD=vscode bash .devcontainer/start-vnc.sh`. |
-| `docker: permission denied` | Run `newgrp docker`, or rebuild the Codespace so the docker-in-docker feature applies. |
+| `docker: permission denied` | Sidecars need the Ubuntu configuration. There, run `newgrp docker`, or rebuild so the docker-in-docker feature applies. |
 | Sidecar exits immediately | Usually out of memory. Stop other containers or use a larger machine, then check `docker logs <name>`. |
 | Sluggish desktop | Lower the resolution, close tabs inside the desktop browser, stop unused sidecars, or move to a larger machine. |
 
