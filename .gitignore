@@ -1,0 +1,8 @@
+# Local sidecar data (see VM_CONFIG_ROOT in launch-distro.sh).
+.vm-config/
+
+# Desktop logs.
+*.log
+
+# macOS metadata.
+.DS_Store

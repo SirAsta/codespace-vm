@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# VNC session script for XFCE.
+#
+# Executed by TigerVNC when display :1 starts. Launches a lightweight
+# XFCE session suitable for remote use over noVNC.
+unset SESSION_MANAGER
+unset DBUS_SESSION_BUS_ADDRESS
+
+[ -r "$HOME/.Xresources" ] && xrdb "$HOME/.Xresources"
+
+xsetroot -solid "#2C3E50" 2>/dev/null || true
+vncconfig -iconic 2>/dev/null &
+
+# A session bus keeps file manager dialogs and settings panels responsive.
+if command -v dbus-launch >/dev/null 2>&1; then
+  eval "$(dbus-launch --sh-syntax --exit-with-session)"
+fi
+
+# Screen blanking and power saving serve no purpose in a browser tab.
+xset s off 2>/dev/null || true
+xset -dpms 2>/dev/null || true
+
+exec startxfce4
