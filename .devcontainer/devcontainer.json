@@ -2,7 +2,7 @@
   // Default configuration: Ubuntu with Docker sidecar support.
   // Alternatives live in .devcontainer/<arch|fedora|debian>/ — choose one from
   // the "Dev container configuration" dropdown on the codespace creation page.
-  "name": "Linux VM (KDE Plasma + noVNC)",
+  "name": "ubuntu",
   "build": {
     "dockerfile": "Dockerfile",
     "context": "."

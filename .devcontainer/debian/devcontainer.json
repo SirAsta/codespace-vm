@@ -1,11 +1,11 @@
 {
   // Debian configuration: stable Debian booting straight into KDE Plasma.
-  // Select "Linux VM (Debian Plasma + noVNC)" from the "Dev container configuration"
-  // dropdown on the codespace creation page (Code -> Codespaces -> ... -> New with options).
+  // Select "debian" from the "Dev container configuration" dropdown on the
+  // codespace creation page (Code -> Codespaces -> ... -> New with options).
   // Shares the VNC scripts in .devcontainer/ through build context "..".
   // Note: Docker is not installed here, so sidecar containers are unavailable.
   // Use the default Ubuntu configuration when you need sidecars.
-  "name": "Linux VM (Debian Plasma + noVNC)",
+  "name": "debian",
   "build": {
     "dockerfile": "Dockerfile",
     "context": ".."

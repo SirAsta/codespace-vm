@@ -41,10 +41,10 @@ To make a different distro your default, copy its `devcontainer.json` over
 
 | Configuration | Base image | Docker sidecars? | Best for |
 | --- | --- | --- | --- |
-| Default (Ubuntu) | Ubuntu LTS | Yes — five Plasma sidecars plus Kali | Most users; the full lab |
-| Arch Plasma | Arch Linux (rolling) | No | Latest packages and AUR-style tinkering |
-| Fedora Plasma | Fedora (latest) | No | The Red Hat ecosystem |
-| Debian Plasma | Debian (stable) | No | A minimal, stable base |
+| `ubuntu` (default) | Ubuntu LTS | Yes — five Plasma sidecars plus Kali | Most users; the full lab |
+| `arch` | Arch Linux (rolling) | No | Latest packages and AUR-style tinkering |
+| `fedora` | Fedora (latest) | No | The Red Hat ecosystem |
+| `debian` | Debian (stable) | No | A minimal, stable base |
 
 Sidecar containers need Docker, which is installed on the Ubuntu configuration
 only. Alpine Linux is available as a sidecar there; it has no dev container
