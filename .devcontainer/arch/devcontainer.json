@@ -37,9 +37,12 @@
   "postStartCommand": "bash .devcontainer/start-vnc.sh",
   "postAttachCommand": "bash scripts/status.sh || true",
 
+  // Minimum machine specification. Kept at the smallest standard Codespace
+  // size so creation is never blocked; choose a 4-core machine on the
+  // creation page for the best Plasma experience.
   "hostRequirements": {
-    "cpus": 4,
-    "memory": "10gb",
-    "storage": "64gb"
+    "cpus": 2,
+    "memory": "8gb",
+    "storage": "32gb"
   }
 }
